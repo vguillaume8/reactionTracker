@@ -13,7 +13,7 @@ class ViewController: UIViewController {
 
     let trackingView = ARSCNView()
     let smileLabel = UILabel()
-    let heading = UILabel()
+    let change = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,9 +54,19 @@ class ViewController: UIViewController {
     func buildSmileLabel() {
         
         smileLabel.text = "😑"
-        heading.text = "Make a face"
-        heading.font = UIFont.systemFont(ofSize: 150)
+        let heading = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
+        heading.center = CGPoint(x: 160, y: 285)
+        heading.textAlignment = .center
+        heading.text = "Make A Face"
+        
+       
+        change.center = CGPoint(x: 160, y: 600)
+        change.textAlignment = .center
+        change.text = ""
+        view.addSubview(change)
+        
         smileLabel.font = UIFont.systemFont(ofSize: 150)
+        view.addSubview(heading)
         view.addSubview(smileLabel)
         
         // Set constraints
@@ -66,21 +76,42 @@ class ViewController: UIViewController {
     }
     
     
-    func handleSmile(smileValue: CGFloat, toungeOut: CGFloat, winked: CGFloat, mouthOpen: CGFloat) {
+    func handleSmile(smileValue: CGFloat, toungeOut: CGFloat, winked: CGFloat,
+                     mouthOpen: CGFloat, eyebrows: CGFloat, eyesLookedDown: CGFloat) {
         
         switch smileValue{
+        case _ where eyebrows > 1:
+            smileLabel.text = "🤨"
+            change.text = "Eyebrows up"
+            view.addSubview(change)
+        case _ where eyesLookedDown > 1:
+            smileLabel.text = "😌"
+            change.text = "Eyes closed"
+            view.addSubview(change)
         case _ where toungeOut > 0.5:
             smileLabel.text = "😛"
+            change.text = "Toungue Out"
+            view.addSubview(change)
         case _ where winked > 0.5:
             smileLabel.text = "😉"
+            change.text = "Winked"
+            view.addSubview(change)
         case _ where mouthOpen > 0.5:
             smileLabel.text = "😲"
+            change.text = "Mouth Open"
+            view.addSubview(change)
         case _ where smileValue > 0.5:
         smileLabel.text = "😄"
+        change.text = "Big Smile"
+        view.addSubview(change)
         case _ where smileValue > 0.2:
         smileLabel.text = "🙂"
+        change.text = "Small Smile"
+        view.addSubview(change)
         default:
             smileLabel.text = "😑"
+            change.text = "Straight Face"
+            view.addSubview(change)
             
         }
     }
@@ -98,12 +129,19 @@ extension ViewController: ARSCNViewDelegate {
         let toungeOut = faceAnchor.blendShapes[.tongueOut] as! CGFloat
         let winked = faceAnchor.blendShapes[.eyeBlinkRight] as! CGFloat
         let mouthOpen = faceAnchor.blendShapes[.jawOpen] as! CGFloat
+        let eyesLookedDownLeft = faceAnchor.blendShapes[.eyeLookDownLeft] as! CGFloat
+        let eyesLookedDownRight = faceAnchor.blendShapes[.eyeLookDownRight] as! CGFloat
+        let eyesLookedDown = eyesLookedDownLeft + eyesLookedDownRight
+        let eyebrowsRight = faceAnchor.blendShapes[.browOuterUpRight] as! CGFloat
+        let eyebrowsLeft = faceAnchor.blendShapes[.browOuterUpLeft] as! CGFloat
+        let eyebrows = eyebrowsRight + eyebrowsLeft
+     
         
     
         
         
         DispatchQueue.main.sync {
-            self.handleSmile(smileValue: (leftMouseSmileValue + rightMouseSmileValue) / 2.0, toungeOut: toungeOut, winked: winked, mouthOpen: mouthOpen)
+            self.handleSmile(smileValue: (leftMouseSmileValue + rightMouseSmileValue) / 2.0, toungeOut: toungeOut, winked: winked, mouthOpen: mouthOpen, eyebrows: eyebrows, eyesLookedDown: eyesLookedDown)
         }
     }
 }
